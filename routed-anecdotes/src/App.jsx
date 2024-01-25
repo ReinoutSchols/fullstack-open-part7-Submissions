@@ -74,7 +74,7 @@ const CreateNew = (props) => {
   const author = useField('text')
   const info = useField('text')
   const navigate = useNavigate()
-
+  
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log("logging content in handle submit:", content)
@@ -87,6 +87,14 @@ const CreateNew = (props) => {
     navigate("/")
   }
 
+  const handleClick = (e) => {
+    e.preventDefault()
+    content.reset()
+    author.reset()
+    info.reset()
+  }
+
+  
   return (
     <div>
       <h2>create a new anecdote</h2>
@@ -110,6 +118,7 @@ const CreateNew = (props) => {
           />
         </div>
         <button>create</button>
+        <button onClick={handleClick}>reset</button>
       </form>
     </div>
   )
