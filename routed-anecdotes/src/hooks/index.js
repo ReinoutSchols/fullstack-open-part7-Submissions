@@ -11,15 +11,10 @@ export const useField = (type) => {
         setValue("")
       }
     
-      const resetall = () => {
-        reset()
-      }
-
     return {
       type,
       value,
       onChange,
-      reset, 
-      resetall
+      reset 
     }
   }
