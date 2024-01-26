@@ -1,10 +1,10 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-const _ = require('lodash');
-const { info } = require('./logger');
+const _ = require("lodash");
+const { info } = require("./logger");
 // eslint-disable-next-line no-unused-vars
 const dummy = (blogs) => 1;
 
-const totalLikes = (array) => _.sumBy(array, 'likes');
+const totalLikes = (array) => _.sumBy(array, "likes");
 
 const favoriteBlog = (blogs) => {
   if (blogs.length === 0) {
@@ -22,9 +22,11 @@ const favoriteBlog = (blogs) => {
 const mostBlogs = (blogs) => {
   const result = _.countBy(blogs, (blog) => blog.author);
   info(result);
-  const maxAuthor = Object.keys(result).reduce((accumulator, currentAuthor) => (
-    result[accumulator] > result[currentAuthor] ? accumulator : currentAuthor
-  ), '');
+  const maxAuthor = Object.keys(result).reduce(
+    (accumulator, currentAuthor) =>
+      result[accumulator] > result[currentAuthor] ? accumulator : currentAuthor,
+    "",
+  );
   return {
     author: maxAuthor,
     blogs: result[maxAuthor],
@@ -32,11 +34,13 @@ const mostBlogs = (blogs) => {
 };
 
 const mostLikes = (blogs) => {
-  const result = _.groupBy(blogs, 'author');
+  const result = _.groupBy(blogs, "author");
   info(result);
 
-  const authorWithMostLikes = _.maxBy(Object.keys(result), (author) => _.sumBy(result[author], 'likes'));
-  const sumLikes = totalLikes(result[authorWithMostLikes], 'likes');
+  const authorWithMostLikes = _.maxBy(Object.keys(result), (author) =>
+    _.sumBy(result[author], "likes"),
+  );
+  const sumLikes = totalLikes(result[authorWithMostLikes], "likes");
 
   return {
     author: authorWithMostLikes,
@@ -45,5 +49,9 @@ const mostLikes = (blogs) => {
 };
 
 module.exports = {
-  dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes,
+  dummy,
+  totalLikes,
+  favoriteBlog,
+  mostBlogs,
+  mostLikes,
 };

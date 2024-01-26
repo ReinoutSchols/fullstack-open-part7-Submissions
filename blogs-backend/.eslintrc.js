@@ -5,33 +5,26 @@ module.exports = {
     es2021: true,
     jest: true,
   },
-  extends: 'airbnb-base',
+  extends: "airbnb-base",
   overrides: [
     {
       env: {
         node: true,
       },
-      files: [
-        '.eslintrc.{js,cjs}',
-      ],
+      files: [".eslintrc.{js,cjs}"],
       parserOptions: {
-        sourceType: 'script',
+        sourceType: "script",
       },
     },
   ],
   parserOptions: {
-    ecmaVersion: 'latest',
+    ecmaVersion: "latest",
   },
   rules: {
-    indent: [
-      'error',
-      2,
-    ],
-    eqeqeq: 'error',
-    'no-trailing-spaces': 'error',
-    'object-curly-spacing': [
-      'error', 'always',
-    ],
-    'no-console': 0,
+    indent: ["error", 2],
+    eqeqeq: "error",
+    "no-trailing-spaces": "error",
+    "object-curly-spacing": ["error", "always"],
+    "no-console": 0,
   },
 };
