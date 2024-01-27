@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
@@ -6,9 +6,13 @@ import Notification from "./components/Notification";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
 import lodash from "lodash";
+import { useSelector, useDispatch } from "react-redux";
+import { Setnotification } from "./reducers/blogReducer";
 
-// find out why blog is not being saved
 const App = () => {
+  const dispatch = useDispatch();
+  const Message = useSelector((state) => state.blog);
+  console.log(Message);
   const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,8 +20,8 @@ const App = () => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
+  // const [successMessage, setSuccessMessage] = useState(null);
+  // const [errorMessage, setErrorMessage] = useState(null);
 
   // setting the state with input of the login form:
   const handleLogin = async (event) => {
@@ -29,7 +33,7 @@ const App = () => {
           username,
           password,
         },
-        setErrorMessage,
+        //  setErrorMessage,
       );
 
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
@@ -38,15 +42,15 @@ const App = () => {
       setUser(user);
       setUsername("");
       setPassword("");
-      setSuccessMessage("Login successful");
+      dispatch(Setnotification("Login successful"));
       setTimeout(() => {
-        setSuccessMessage(null);
+        dispatch(Setnotification(null));
       }, 5000);
     } catch (error) {
       console.error("Login error:", error);
-      setErrorMessage("Error. Wrong credentials. Please try again.");
+      dispatch(Setnotification("Error. Wrong credentials. Please try again."));
       setTimeout(() => {
-        setErrorMessage(null);
+        dispatch(Setnotification(null));
       }, 5000);
     }
   };
@@ -118,9 +122,11 @@ const App = () => {
       });
       console.log("New blog created:", newBlog);
 
-      setSuccessMessage(`${newBlog.title} by ${newBlog.author} was added`);
+      dispatch(
+        Setnotification(`${newBlog.title} by ${newBlog.author} was added`),
+      );
       setTimeout(() => {
-        setSuccessMessage(null);
+        dispatch(Setnotification(null));
       }, 5000);
 
       setBlogs((prevBlogs) => [...prevBlogs, { ...newBlog, user: user }]);
@@ -129,9 +135,9 @@ const App = () => {
       setAuthor("");
       setUrl("");
     } catch (exception) {
-      setErrorMessage("Wrong input. Please try again. Error");
+      dispatch(Setnotification("Wrong input. Please try again. Error"));
       setTimeout(() => {
-        setErrorMessage(null);
+        dispatch(Setnotification(null));
       }, 5000);
     }
   };
@@ -154,16 +160,18 @@ const App = () => {
       // sending the put request.
       await blogService.update(id, updatedBlog);
 
-      setSuccessMessage(
-        `${updatedBlog.title} by ${updatedBlog.author} was liked`,
+      dispatch(
+        Setnotification(
+          `${updatedBlog.title} by ${updatedBlog.author} was liked`,
+        ),
       );
       setTimeout(() => {
-        setSuccessMessage(null);
+        dispatch(Setnotification(null));
       }, 5000);
     } catch (exception) {
-      setErrorMessage("Error when liking a blog. Error");
+      dispatch(Setnotification("Error when liking a blog. Error"));
       setTimeout(() => {
-        setErrorMessage(null);
+        dispatch(Setnotification(null));
       }, 5000);
     }
   };
@@ -189,15 +197,15 @@ const App = () => {
         // deleting blog in state
         setBlogs(lodash.filter(blogs, (blog) => blog.id !== id));
 
-        setSuccessMessage(`${blogToDelete.title} was deleted`);
+        dispatch(Setnotification(`${blogToDelete.title} was deleted`));
         setTimeout(() => {
-          setSuccessMessage(null);
+          dispatch(Setnotification(null));
         }, 5000);
       }
     } catch (exception) {
-      setErrorMessage("Error when deleting a blog. Error");
+      dispatch(Setnotification("Error when deleting a blog. Error"));
       setTimeout(() => {
-        setErrorMessage(null);
+        dispatch(Setnotification(null));
       }, 5000);
     }
   };
@@ -205,7 +213,7 @@ const App = () => {
   if (user === null) {
     return (
       <div>
-        <Notification message={errorMessage} />
+        <Notification message={Message} />
         <h2>Log in to application</h2>
         {loginForm()}
       </div>
@@ -213,7 +221,7 @@ const App = () => {
   }
   return (
     <div>
-      <Notification message={successMessage} />
+      <Notification message={Message} />
       <h2>blogs</h2>
       <p>{user.username} logged in </p>
       <button onClick={() => handleLogout()}>logout</button>
