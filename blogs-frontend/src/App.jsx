@@ -8,7 +8,12 @@ import Togglable from "./components/Togglable";
 import lodash from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 import { Setnotification } from "./reducers/notificationReducer";
-import { SetBlogs, CreateBlogs } from "./reducers/blogReducer";
+import {
+  SetBlogs,
+  CreateBlogs,
+  LikingBlogs,
+  RemoveBlogs,
+} from "./reducers/blogReducer";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -85,9 +90,9 @@ const App = () => {
     const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
     // Only setting the blogsstate if it is different from the sortedblogs, was getting a lot of infinity loops otherwise.
     if (!lodash.isEqual(sortedBlogs, blogs)) {
-      SetBlogs(sortedBlogs);
+      dispatch(SetBlogs(sortedBlogs));
     }
-  }, [blogs]);
+  }, [dispatch, blogs]);
 
   // loginform handler
   const loginForm = () => (
@@ -153,12 +158,7 @@ const App = () => {
       // adding a like
       const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 };
 
-      // if id matches then the prevblog gets copied and the updated blog gets added to this copy.
-      SetBlogs((prevBlogs) =>
-        prevBlogs.map((prevBlog) =>
-          prevBlog.id === id ? { ...prevBlog, ...updatedBlog } : prevBlog,
-        ),
-      );
+      dispatch(LikingBlogs(updatedBlog));
 
       // sending the put request.
       await blogService.update(id, updatedBlog);
@@ -198,7 +198,7 @@ const App = () => {
         await blogService.remove(id, user.token);
 
         // deleting blog in state
-        SetBlogs(lodash.filter(blogs, (blog) => blog.id !== id));
+        dispatch(RemoveBlogs(lodash.filter(blogs, (blog) => blog.id !== id)));
 
         dispatch(Setnotification(`${blogToDelete.title} was deleted`));
         setTimeout(() => {

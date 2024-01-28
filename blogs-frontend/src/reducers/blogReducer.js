@@ -19,8 +19,16 @@ const blogSlice = createSlice({
       );
       state.push(action.payload);
     },
+    LikingBlogs(state, action) {
+      const { id, likes } = action.payload;
+      return state.map((blog) => (blog.id === id ? { ...blog, likes } : blog));
+    },
+    RemoveBlogs(state, action) {
+      return action.payload;
+    },
   },
 });
 
-export const { SetBlogs, CreateBlogs } = blogSlice.actions;
+export const { SetBlogs, CreateBlogs, LikingBlogs, RemoveBlogs } =
+  blogSlice.actions;
 export default blogSlice.reducer;
