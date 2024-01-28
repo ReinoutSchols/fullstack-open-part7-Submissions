@@ -1,20 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-const initialState = null;
+const initialState = [];
 
 const blogSlice = createSlice({
   name: "blog",
   initialState,
   reducers: {
-    Setnotification(state, action) {
+    SetBlogs(state, action) {
       console.log(
-        "logging notification action.payload in reducer:",
+        "logging setblogs action.payload in blogreducer:",
         action.payload,
       );
       return action.payload;
     },
+    CreateBlogs(state, action) {
+      console.log(
+        "logging created blog action.payload in blogreducer:",
+        action.payload,
+      );
+      state.push(action.payload);
+    },
   },
 });
 
-export const { Setnotification } = blogSlice.actions;
+export const { SetBlogs, CreateBlogs } = blogSlice.actions;
 export default blogSlice.reducer;
