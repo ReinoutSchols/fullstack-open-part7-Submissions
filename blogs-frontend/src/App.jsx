@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+/* eslint-disable indent */
+import { useState, useEffect, useContext } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
@@ -7,7 +8,6 @@ import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
 import lodash from "lodash";
 import { useSelector, useDispatch } from "react-redux";
-import { Setnotification } from "./reducers/notificationReducer";
 import { SetUser } from "./reducers/userReducer";
 import {
   SetBlogs,
@@ -16,20 +16,15 @@ import {
   RemoveBlogs,
   initializeBlogs,
 } from "./reducers/blogReducer";
+import NotificationContext from "./notificationContext";
 
 const App = () => {
   const dispatch = useDispatch();
-  const Message = useSelector((state) => state.notification);
-  console.log("Message state:", Message);
+  const [Message, messageDispatch] = useContext(NotificationContext);
   const blogs = useSelector((state) => state.blog);
   console.log("blogs state:", blogs);
   const user = useSelector((state) => state.user);
   console.log("user state:", user);
-
-  // const [blogs, setBlogs] = useState([]);
-  // const [successMessage, setSuccessMessage] = useState(null);
-  // const [errorMessage, setErrorMessage] = useState(null);
-  // const [user, setUser] = useState(null);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -42,13 +37,10 @@ const App = () => {
     event.preventDefault();
 
     try {
-      const user = await loginService.login(
-        {
-          username,
-          password,
-        },
-        //  setErrorMessage,
-      );
+      const user = await loginService.login({
+        username,
+        password,
+      });
 
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
 
@@ -57,15 +49,18 @@ const App = () => {
       setUsername("");
       setPassword("");
 
-      dispatch(Setnotification("Login successful"));
+      messageDispatch({ type: "MESSAGE", payload: "Login successful" });
       setTimeout(() => {
-        dispatch(Setnotification(null));
+        messageDispatch({ type: "MESSAGE", payload: null });
       }, 5000);
     } catch (error) {
       console.error("Login error:", error);
-      dispatch(Setnotification("Error. Wrong credentials. Please try again."));
+      messageDispatch({
+        type: "MESSAGE",
+        payload: "Error. Wrong credentials. Please try again.",
+      });
       setTimeout(() => {
-        dispatch(Setnotification(null));
+        messageDispatch({ type: "MESSAGE", payload: null });
       }, 5000);
     }
   };
@@ -137,20 +132,24 @@ const App = () => {
       };
       dispatch(CreateBlogs(newBlog));
 
-      dispatch(
-        Setnotification(`${newBlog.title} by ${newBlog.author} was added`),
-      );
+      messageDispatch({
+        type: "MESSAGE",
+        payload: `${newBlog.title} by ${newBlog.author} was added`,
+      });
       setTimeout(() => {
-        dispatch(Setnotification(null));
+        messageDispatch({ type: "MESSAGE", payload: null });
       }, 5000);
       //  console.log(blogs);
       setTitle("");
       setAuthor("");
       setUrl("");
     } catch (exception) {
-      dispatch(Setnotification("Wrong input. Please try again. Error"));
+      messageDispatch({
+        type: "MESSAGE",
+        payload: "Wrong input. Please try again. Error",
+      });
       setTimeout(() => {
-        dispatch(Setnotification(null));
+        messageDispatch({ type: "MESSAGE", payload: null });
       }, 5000);
     }
   };
@@ -168,18 +167,20 @@ const App = () => {
       // sending the put request.
       await blogService.update(id, updatedBlog);
 
-      dispatch(
-        Setnotification(
-          `${updatedBlog.title} by ${updatedBlog.author} was liked`,
-        ),
-      );
+      messageDispatch({
+        type: "MESSAGE",
+        payload: `${updatedBlog.title} by ${updatedBlog.author} was liked`,
+      });
       setTimeout(() => {
-        dispatch(Setnotification(null));
+        messageDispatch({ type: "MESSAGE", payload: null });
       }, 5000);
     } catch (exception) {
-      dispatch(Setnotification("Error when liking a blog. Error"));
+      messageDispatch({
+        type: "MESSAGE",
+        payload: "Error when liking a blog. Error",
+      });
       setTimeout(() => {
-        dispatch(Setnotification(null));
+        messageDispatch({ type: "MESSAGE", payload: null });
       }, 5000);
     }
   };
@@ -205,15 +206,21 @@ const App = () => {
         // deleting blog in state
         dispatch(RemoveBlogs(lodash.filter(blogs, (blog) => blog.id !== id)));
 
-        dispatch(Setnotification(`${blogToDelete.title} was deleted`));
+        messageDispatch({
+          type: "MESSAGE",
+          payload: `${blogToDelete.title} was deleted`,
+        });
         setTimeout(() => {
-          dispatch(Setnotification(null));
+          messageDispatch({ type: "MESSAGE", payload: null });
         }, 5000);
       }
     } catch (exception) {
-      dispatch(Setnotification("Error when deleting a blog. Error"));
+      messageDispatch({
+        type: "MESSAGE",
+        payload: "Error when deleting a blog. Error",
+      });
       setTimeout(() => {
-        dispatch(Setnotification(null));
+        messageDispatch({ type: "MESSAGE", payload: null });
       }, 5000);
     }
   };
@@ -221,7 +228,7 @@ const App = () => {
   if (user === null) {
     return (
       <div>
-        <Notification message={Message} />
+        <Notification />
         <h2>Log in to application</h2>
         {loginForm()}
       </div>
@@ -229,7 +236,7 @@ const App = () => {
   }
   return (
     <div>
-      <Notification message={Message} />
+      <Notification />
       <h2>blogs</h2>
       <p>{user.username} logged in </p>
       <button onClick={() => handleLogout()}>logout</button>

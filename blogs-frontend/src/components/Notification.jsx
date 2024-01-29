@@ -1,7 +1,10 @@
 // Notification.js
 import React from "react";
+import { useContext } from "react";
+import NotificationContext from "../notificationContext";
 
-const Notification = ({ message }) => {
+const Notification = () => {
+  const [message, dispatch] = useContext(NotificationContext);
   console.log("Notification Component - Received message:", message);
   if (message === null) {
     return null;
