@@ -8,21 +8,24 @@ import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
 import lodash from "lodash";
 import { useSelector, useDispatch } from "react-redux";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SetUser } from "./reducers/userReducer";
-import {
-  SetBlogs,
-  CreateBlogs,
-  LikingBlogs,
-  RemoveBlogs,
-  initializeBlogs,
-} from "./reducers/blogReducer";
+import { SetBlogs, LikingBlogs, RemoveBlogs } from "./reducers/blogReducer";
 import NotificationContext from "./notificationContext";
 
 const App = () => {
+  const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const [Message, messageDispatch] = useContext(NotificationContext);
-  const blogs = useSelector((state) => state.blog);
-  console.log("blogs state:", blogs);
+
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: () => {
+      console.log("invalidated..");
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    },
+  });
+
   const user = useSelector((state) => state.user);
   console.log("user state:", user);
 
@@ -65,12 +68,13 @@ const App = () => {
     }
   };
 
-  // getting blogs based on if the user state changes.
-  useEffect(() => {
-    dispatch(initializeBlogs());
-  }, []);
+  const result = useQuery({
+    queryKey: ["blogs"],
+    queryFn: blogService.getAll,
+  });
 
-  // using an effect hook to get the local stored credentials on the first render.
+  const blogs = result.data || [];
+
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
@@ -89,12 +93,14 @@ const App = () => {
   // Sorting the blogs by likes
   useEffect(() => {
     // sorting in descending order, if b.likes is greater then a.likes, b comes before a
-    const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
-    // Only setting the blogsstate if it is different from the sortedblogs, was getting a lot of infinity loops otherwise.
-    if (!lodash.isEqual(sortedBlogs, blogs)) {
-      dispatch(SetBlogs(sortedBlogs));
+    if (result.isSuccess && result.data) {
+      // Sorting the blogs by likes
+      const sortedBlogs = [...result.data].sort((a, b) => b.likes - a.likes);
+      if (!lodash.isEqual(sortedBlogs, result.data)) {
+        dispatch(SetBlogs(sortedBlogs));
+      }
     }
-  }, []);
+  }, [result.isSuccess, result.data, dispatch]);
 
   // loginform handler
   const loginForm = () => (
@@ -130,7 +136,7 @@ const App = () => {
         author,
         url,
       };
-      dispatch(CreateBlogs(newBlog));
+      newBlogMutation.mutate(newBlog);
 
       messageDispatch({
         type: "MESSAGE",
@@ -251,15 +257,19 @@ const App = () => {
           handleUrlChange={({ target }) => setUrl(target.value)}
         />
       </Togglable>
-      {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          handleLike={() => handleLike(blog.id)}
-          handleDelete={() => handleDelete(blog.id)}
-          currentUser={user}
-        />
-      ))}
+      {result.isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        blogs.map((blog) => (
+          <Blog
+            key={blog.id}
+            blog={blog}
+            handleLike={() => handleLike(blog.id)}
+            handleDelete={() => handleDelete(blog.id)}
+            currentUser={user}
+          />
+        ))
+      )}
     </div>
   );
 };
