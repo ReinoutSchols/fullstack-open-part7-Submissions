@@ -10,7 +10,7 @@ import lodash from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SetUser } from "./reducers/userReducer";
-import { SetBlogs, LikingBlogs, RemoveBlogs } from "./reducers/blogReducer";
+import { SetBlogs } from "./reducers/blogReducer";
 import NotificationContext from "./notificationContext";
 
 const App = () => {
@@ -25,6 +25,29 @@ const App = () => {
       queryClient.invalidateQueries({ queryKey: ["blogs"] });
     },
   });
+
+  // mutation creator to update blogs
+  const updateBlogMutation = useMutation({
+    mutationFn: blogService.update,
+    onSuccess: () => {
+      console.log("invalidated after updating");
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    },
+  });
+  const voteLikes = (selectedBlog) => {
+    updateBlogMutation.mutate({ id: selectedBlog.id, newObject: selectedBlog });
+  };
+  // mutation creator to delete blogs
+  const deleteBlogMutation = useMutation({
+    mutationFn: blogService.remove,
+    onSuccess: () => {
+      console.log("invalidated after deleting");
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    },
+  });
+  const deleteBlog = (id) => {
+    deleteBlogMutation.mutate({ id });
+  };
 
   const user = useSelector((state) => state.user);
   console.log("user state:", user);
@@ -168,10 +191,9 @@ const App = () => {
       // adding a like
       const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 };
 
-      dispatch(LikingBlogs(updatedBlog));
-
       // sending the put request.
-      await blogService.update(id, updatedBlog);
+      console.log(" UPDATEDBlog", updatedBlog);
+      voteLikes(updatedBlog);
 
       messageDispatch({
         type: "MESSAGE",
@@ -207,10 +229,10 @@ const App = () => {
         )
       ) {
         // sending the delete request.
-        await blogService.remove(id, user.token);
+        deleteBlog(blogToDelete.id);
 
         // deleting blog in state
-        dispatch(RemoveBlogs(lodash.filter(blogs, (blog) => blog.id !== id)));
+        // dispatch(RemoveBlogs(lodash.filter(blogs, (blog) => blog.id !== id)));
 
         messageDispatch({
           type: "MESSAGE",

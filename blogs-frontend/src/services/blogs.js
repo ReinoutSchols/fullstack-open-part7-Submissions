@@ -1,4 +1,5 @@
 import axios from "axios";
+import { object } from "prop-types";
 const baseUrl = "/api/blogs";
 
 let token = null;
@@ -24,18 +25,25 @@ const create = async (newObject) => {
   return response.data;
 };
 
-const update = async (id, newObject) => {
+const update = async ({ id, newObject }) => {
   try {
+    console.log(
+      "logging id and object in update function backend:",
+      id,
+      newObject,
+    );
     const response = await axios.put(`${baseUrl}/${id}`, newObject);
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.log("Error in update", error);
   }
 };
-const remove = async (id) => {
+const remove = async ({ id }) => {
   const config = {
     headers: { Authorization: token },
   };
+  console.log("id in remove axios:", id);
   try {
     const response = await axios.delete(`${baseUrl}/${id}`, config);
     return response.data;
