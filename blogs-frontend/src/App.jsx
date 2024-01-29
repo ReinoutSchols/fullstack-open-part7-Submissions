@@ -12,11 +12,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SetUser } from "./reducers/userReducer";
 import { SetBlogs } from "./reducers/blogReducer";
 import NotificationContext from "./notificationContext";
+import UserContext from "./userContext";
 
 const App = () => {
   const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const [Message, messageDispatch] = useContext(NotificationContext);
+  const [user, UserDispatch] = useContext(UserContext);
+  console.log("logging user", user);
 
   const newBlogMutation = useMutation({
     mutationFn: blogService.create,
@@ -49,9 +52,10 @@ const App = () => {
     deleteBlogMutation.mutate({ id });
   };
 
+  /*
   const user = useSelector((state) => state.user);
   console.log("user state:", user);
-
+  */
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [title, setTitle] = useState("");
@@ -71,7 +75,10 @@ const App = () => {
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
 
       blogService.setToken(user.token);
-      dispatch(SetUser(user));
+      UserDispatch({
+        type: "LOGIN",
+        payload: user,
+      });
       setUsername("");
       setPassword("");
 
@@ -94,6 +101,10 @@ const App = () => {
   const result = useQuery({
     queryKey: ["blogs"],
     queryFn: blogService.getAll,
+    select: (data) => {
+      // Sorting the blogs by likes using useQuery
+      return data ? [...data].sort((a, b) => b.likes - a.likes) : [];
+    },
   });
 
   const blogs = result.data || [];
@@ -102,7 +113,10 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      dispatch(SetUser(user));
+      UserDispatch({
+        type: "LOGIN",
+        payload: user,
+      });
       blogService.setToken(user.token);
     }
   }, []);
@@ -110,21 +124,23 @@ const App = () => {
   // creating logout handler.
   const handleLogout = () => {
     window.localStorage.clear();
-    dispatch(SetUser(null));
+    UserDispatch({
+      type: "LOGIN",
+      payload: null,
+    });
   };
-
+  /*
   // Sorting the blogs by likes
   useEffect(() => {
     // sorting in descending order, if b.likes is greater then a.likes, b comes before a
-    if (result.isSuccess && result.data) {
-      // Sorting the blogs by likes
-      const sortedBlogs = [...result.data].sort((a, b) => b.likes - a.likes);
-      if (!lodash.isEqual(sortedBlogs, result.data)) {
-        dispatch(SetBlogs(sortedBlogs));
-      }
+    // Sorting the blogs by likes
+    const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
+    console.log("sortedBlogs", sortedBlogs);
+    if (!lodash.isEqual(sortedBlogs, blogs)) {
+      dispatch(SetBlogs(sortedBlogs));
     }
-  }, [result.isSuccess, result.data, dispatch]);
-
+  }, []);
+*/
   // loginform handler
   const loginForm = () => (
     <form onSubmit={handleLogin}>
