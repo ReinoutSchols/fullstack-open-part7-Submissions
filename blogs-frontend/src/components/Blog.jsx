@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const Blog = ({ blog, handleLike, handleDelete, currentUser }) => {
+  // const blogs = useSelector((state) => state.blog);
+  // console.log("blogs state in blog component:", blogs);
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,

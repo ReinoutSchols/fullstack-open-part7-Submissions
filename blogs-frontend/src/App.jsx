@@ -8,11 +8,13 @@ import Togglable from "./components/Togglable";
 import lodash from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 import { Setnotification } from "./reducers/notificationReducer";
+import { SetUser } from "./reducers/userReducer";
 import {
   SetBlogs,
   CreateBlogs,
   LikingBlogs,
   RemoveBlogs,
+  initializeBlogs,
 } from "./reducers/blogReducer";
 
 const App = () => {
@@ -21,12 +23,16 @@ const App = () => {
   console.log("Message state:", Message);
   const blogs = useSelector((state) => state.blog);
   console.log("blogs state:", blogs);
+  const user = useSelector((state) => state.user);
+  console.log("user state:", user);
+
   // const [blogs, setBlogs] = useState([]);
   // const [successMessage, setSuccessMessage] = useState(null);
   // const [errorMessage, setErrorMessage] = useState(null);
+  // const [user, setUser] = useState(null);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
@@ -47,9 +53,10 @@ const App = () => {
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
 
       blogService.setToken(user.token);
-      setUser(user);
+      dispatch(SetUser(user));
       setUsername("");
       setPassword("");
+
       dispatch(Setnotification("Login successful"));
       setTimeout(() => {
         dispatch(Setnotification(null));
@@ -65,7 +72,7 @@ const App = () => {
 
   // getting blogs based on if the user state changes.
   useEffect(() => {
-    blogService.getAll().then((blogs) => dispatch(SetBlogs(blogs)));
+    dispatch(initializeBlogs());
   }, []);
 
   // using an effect hook to get the local stored credentials on the first render.
@@ -73,7 +80,7 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      setUser(user);
+      dispatch(SetUser(user));
       blogService.setToken(user.token);
     }
   }, []);
@@ -81,7 +88,7 @@ const App = () => {
   // creating logout handler.
   const handleLogout = () => {
     window.localStorage.clear();
-    setUser(null);
+    dispatch(SetUser(null));
   };
 
   // Sorting the blogs by likes
@@ -92,7 +99,7 @@ const App = () => {
     if (!lodash.isEqual(sortedBlogs, blogs)) {
       dispatch(SetBlogs(sortedBlogs));
     }
-  }, [dispatch, blogs]);
+  }, []);
 
   // loginform handler
   const loginForm = () => (
@@ -123,12 +130,12 @@ const App = () => {
   const handleNewBlog = async (event) => {
     event.preventDefault();
     try {
-      const newBlog = await blogService.create({
+      const newBlog = {
         title,
         author,
         url,
-      });
-      console.log("New blog created:", newBlog);
+      };
+      dispatch(CreateBlogs(newBlog));
 
       dispatch(
         Setnotification(`${newBlog.title} by ${newBlog.author} was added`),
@@ -136,9 +143,7 @@ const App = () => {
       setTimeout(() => {
         dispatch(Setnotification(null));
       }, 5000);
-
-      dispatch(CreateBlogs(newBlog));
-      console.log(blogs);
+      //  console.log(blogs);
       setTitle("");
       setAuthor("");
       setUrl("");

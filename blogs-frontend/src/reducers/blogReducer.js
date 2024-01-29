@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import blogService from "../services/blogs";
 const initialState = [];
 
 const blogSlice = createSlice({
@@ -12,7 +13,7 @@ const blogSlice = createSlice({
       );
       return action.payload;
     },
-    CreateBlogs(state, action) {
+    AppendBlogs(state, action) {
       console.log(
         "logging created blog action.payload in blogreducer:",
         action.payload,
@@ -29,6 +30,24 @@ const blogSlice = createSlice({
   },
 });
 
-export const { SetBlogs, CreateBlogs, LikingBlogs, RemoveBlogs } =
+export const { SetBlogs, AppendBlogs, LikingBlogs, RemoveBlogs } =
   blogSlice.actions;
+
+export const initializeBlogs = () => {
+  return async (dispatch) => {
+    const blogs = await blogService.getAll();
+    dispatch(SetBlogs(blogs));
+  };
+};
+
+export const CreateBlogs = (content) => {
+  return async (dispatch) => {
+    const newBlog = await blogService.create(content);
+    dispatch(AppendBlogs(newBlog));
+    console.log("New blog created:", newBlog);
+    const blogs = await blogService.getAll();
+    dispatch(SetBlogs(blogs));
+  };
+};
+
 export default blogSlice.reducer;
