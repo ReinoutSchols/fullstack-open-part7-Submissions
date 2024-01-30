@@ -13,6 +13,7 @@ import UserContext from "./userContext";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import UsersView from "./components/UsersView";
 import IndividualUser from "./components/individualUser";
+import BlogView from "./components/BlogView";
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -190,12 +191,13 @@ const App = () => {
     try {
       // finding the blog with the id that is liked
       const blogToUpdate = blogs.find((blog) => blog.id === id);
-
+      console.log("id in handle like:", id);
       // adding a like
       const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 };
 
       // sending the put request.
       console.log(" UPDATEDBlog", updatedBlog);
+
       voteLikes(updatedBlog);
 
       messageDispatch({
@@ -274,6 +276,16 @@ const App = () => {
           element={<IndividualUser handleLogout={handleLogout} blogs={blogs} />}
         />
         <Route
+          path="/blogs/:id"
+          element={
+            <BlogView
+              handleLogout={handleLogout}
+              blogs={blogs}
+              handleLike={handleLike}
+            />
+          }
+        />
+        <Route
           path="/"
           element={
             <div>
@@ -296,13 +308,9 @@ const App = () => {
                 <div>Loading...</div>
               ) : (
                 blogs.map((blog) => (
-                  <Blog
-                    key={blog.id}
-                    blog={blog}
-                    handleLike={() => handleLike(blog.id)}
-                    handleDelete={() => handleDelete(blog.id)}
-                    currentUser={user}
-                  />
+                  <Link to={`/blogs/${blog.id}`} key={blog.id}>
+                    <Blog blog={blog} />
+                  </Link>
                 ))
               )}
             </div>
