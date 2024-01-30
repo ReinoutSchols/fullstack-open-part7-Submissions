@@ -12,19 +12,23 @@ const BlogView = ({ handleLogout, blogs, handleLike }) => {
   if (Blog.length === 0) {
     return <p>Loading...</p>;
   }
+  const commentElements = Blog[0].comments.map((comment) => (
+    <li key={comment.text}>{comment.text}</li>
+  ));
+  console.log("comment elements:", commentElements);
   return (
     <div>
-      <h2>blogs</h2>
-      <p>{`${user.username} logged in`}</p>
-      <button onClick={() => handleLogout()}>logout</button>
+      <h2>blog app</h2>
 
-      <h1> {Blog[0].title}</h1>
+      <h2> {Blog[0].title}</h2>
       <p> {Blog[0].url}</p>
       <div style={{ display: "flex", alignItems: "center" }}>
         <a>{`${Blog[0].likes} likes`}</a>
         <button onClick={() => handleLike(blogid)}>Like</button>
       </div>
       <p>{`added by ${Blog[0].user.username}`}</p>
+      <h3>Comments</h3>
+      <ul>{commentElements}</ul>
     </div>
   );
 };

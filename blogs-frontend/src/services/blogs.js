@@ -25,6 +25,18 @@ const create = async (newObject) => {
   return response.data;
 };
 
+const createComment = async (id, newObject) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  const response = await axios.post(
+    `${baseUrl}/${id}/comments`,
+    config,
+    newObject,
+  );
+  return response.data;
+};
+
 const update = async ({ id, newObject }) => {
   try {
     console.log(

@@ -2,36 +2,38 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-underscore-dangle */
 // To define routehandling
-const blogsRouter = require("express").Router();
-const jwt = require("jsonwebtoken");
-const middleware = require("../utils/middleware");
-const Blog = require("../models/blog");
+const blogsRouter = require('express').Router();
+const jwt = require('jsonwebtoken');
+const middleware = require('../utils/middleware');
+const Blog = require('../models/blog');
 
-blogsRouter.get("/", async (request, response) => {
-  const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
+blogsRouter.get('/', async (request, response) => {
+  const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
   response.json(blogs);
 });
 
 // eslint-disable-next-line consistent-return
 blogsRouter.post(
-  "/",
+  '/',
   middleware.getTokenFrom,
   middleware.userExtractor,
   async (request, response) => {
-    const { title, url, likes, author } = request.body;
+    const {
+      title, url, likes, author,
+    } = request.body;
     const decodedToken = jwt.verify(request.token, process.env.SECRET);
     if (!decodedToken.id) {
-      return response.status(401).json({ error: "token invalid" });
+      return response.status(401).json({ error: 'token invalid' });
     }
     const user = request.user;
 
     if (
-      url === undefined ||
-      url === null ||
-      title === undefined ||
-      title === null
+      url === undefined
+      || url === null
+      || title === undefined
+      || title === null
     ) {
-      return response.status(400).json({ error: "Title and URL are required" });
+      return response.status(400).json({ error: 'Title and URL are required' });
     }
 
     const blogData = {
@@ -50,22 +52,42 @@ blogsRouter.post(
     response.status(201).json(result);
   },
 );
+blogsRouter.post(
+  '/:id/comments',
+  middleware.getTokenFrom,
+  async (request, response) => {
+    const { id } = request.params;
+    const { text } = request.body;
+
+    const blog = await Blog.findById(id);
+
+    if (!blog) {
+      return response.status(404).json({ error: 'Blog not found' });
+    }
+
+    // Add the new comment to the blog's comments array
+    blog.comments.push({ text });
+    await blog.save();
+
+    response.status(201).json(blog);
+  },
+);
 
 blogsRouter.delete(
-  "/:id",
+  '/:id',
   middleware.getTokenFrom,
   middleware.userExtractor,
   async (request, response) => {
     const decodedToken = jwt.verify(request.token, process.env.SECRET);
     if (!decodedToken.id) {
-      return response.status(401).json({ error: "token invalid" });
+      return response.status(401).json({ error: 'token invalid' });
     }
 
     const blogId = request.params.id;
     const blog = await Blog.findById(blogId);
 
     if (!blog || blog.user.toString() !== request.user.id) {
-      return response.status(404).json({ error: "Blog not found" });
+      return response.status(404).json({ error: 'Blog not found' });
     }
 
     await Blog.findByIdAndDelete(blogId);
@@ -73,7 +95,7 @@ blogsRouter.delete(
   },
 );
 
-blogsRouter.put("/:id", async (request, response) => {
+blogsRouter.put('/:id', async (request, response) => {
   const { id } = request.params;
   const { likes } = request.body;
 
