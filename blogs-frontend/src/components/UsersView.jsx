@@ -1,21 +1,23 @@
-import Notification from "./Notification";
 import UserContext from "../userContext";
 import { useContext } from "react";
+import { Link } from "react-router-dom";
 
 const UsersView = ({ handleLogout, blogs }) => {
   const [user, UserDispatch] = useContext(UserContext);
   // console.log("logging user in usersview: ", user);
-  // console.log("logging blogs in usersview: ", blogs);
   const blogCounts = {};
-
+  const userNames = {};
   blogs.forEach((blog) => {
-    const username = blog.user.username;
-    blogCounts[username] = (blogCounts[username] || 0) + 1;
+    const userId = blog.user.id;
+    const userName = blog.user.username;
+    blogCounts[userId] = (blogCounts[userId] || 0) + 1;
+    userNames[userId] = userName;
   });
+  console.log("logging blogCounts in usersview:", blogCounts);
+  console.log("logging blogs in usersview:", blogs);
   return (
     <div>
       <h2>blogs</h2>
-      <Notification />
       <p>{`${user.username} logged in`}</p>
       <button onClick={() => handleLogout()}>logout</button>
       <h2>Users</h2>
@@ -28,10 +30,12 @@ const UsersView = ({ handleLogout, blogs }) => {
             </tr>
           </thead>
           <tbody>
-            {Object.keys(blogCounts).map((username) => (
-              <tr key={username}>
-                <td>{username}</td>
-                <td>{blogCounts[username]}</td>
+            {Object.keys(blogCounts).map((userId) => (
+              <tr key={userId}>
+                <td>
+                  <Link to={`/users/${userId}`}>{userNames[userId]}</Link>
+                </td>
+                <td>{blogCounts[userId]}</td>
               </tr>
             ))}
           </tbody>

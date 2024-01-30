@@ -12,6 +12,7 @@ import NotificationContext from "./notificationContext";
 import UserContext from "./userContext";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import UsersView from "./components/UsersView";
+import IndividualUser from "./components/individualUser";
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -267,6 +268,10 @@ const App = () => {
         <Route
           path="/users"
           element={<UsersView handleLogout={handleLogout} blogs={blogs} />}
+        />
+        <Route
+          path="/users/:id"
+          element={<IndividualUser handleLogout={handleLogout} blogs={blogs} />}
         />
         <Route
           path="/"
