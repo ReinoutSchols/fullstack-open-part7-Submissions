@@ -6,13 +6,12 @@ import loginService from "./services/login";
 import Notification from "./components/Notification";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
-import lodash from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { SetUser } from "./reducers/userReducer";
-import { SetBlogs } from "./reducers/blogReducer";
 import NotificationContext from "./notificationContext";
 import UserContext from "./userContext";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import UsersView from "./components/UsersView";
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -21,6 +20,7 @@ const App = () => {
   const [user, UserDispatch] = useContext(UserContext);
   console.log("logging user", user);
 
+  // mutation creator to create blogs
   const newBlogMutation = useMutation({
     mutationFn: blogService.create,
     onSuccess: () => {
@@ -40,6 +40,7 @@ const App = () => {
   const voteLikes = (selectedBlog) => {
     updateBlogMutation.mutate({ id: selectedBlog.id, newObject: selectedBlog });
   };
+
   // mutation creator to delete blogs
   const deleteBlogMutation = useMutation({
     mutationFn: blogService.remove,
@@ -52,10 +53,6 @@ const App = () => {
     deleteBlogMutation.mutate({ id });
   };
 
-  /*
-  const user = useSelector((state) => state.user);
-  console.log("user state:", user);
-  */
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [title, setTitle] = useState("");
@@ -129,18 +126,7 @@ const App = () => {
       payload: null,
     });
   };
-  /*
-  // Sorting the blogs by likes
-  useEffect(() => {
-    // sorting in descending order, if b.likes is greater then a.likes, b comes before a
-    // Sorting the blogs by likes
-    const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
-    console.log("sortedBlogs", sortedBlogs);
-    if (!lodash.isEqual(sortedBlogs, blogs)) {
-      dispatch(SetBlogs(sortedBlogs));
-    }
-  }, []);
-*/
+
   // loginform handler
   const loginForm = () => (
     <form onSubmit={handleLogin}>
@@ -247,9 +233,6 @@ const App = () => {
         // sending the delete request.
         deleteBlog(blogToDelete.id);
 
-        // deleting blog in state
-        // dispatch(RemoveBlogs(lodash.filter(blogs, (blog) => blog.id !== id)));
-
         messageDispatch({
           type: "MESSAGE",
           payload: `${blogToDelete.title} was deleted`,
@@ -279,36 +262,49 @@ const App = () => {
     );
   }
   return (
-    <div>
-      <Notification />
-      <h2>blogs</h2>
-      <p>{user.username} logged in </p>
-      <button onClick={() => handleLogout()}>logout</button>
-      <Togglable buttonLabel="new blog">
-        <BlogForm
-          handleNewBlog={handleNewBlog}
-          title={title}
-          author={author}
-          url={url}
-          handleAuthorChange={({ target }) => setAuthor(target.value)}
-          handleTitleChange={({ target }) => setTitle(target.value)}
-          handleUrlChange={({ target }) => setUrl(target.value)}
+    <Router>
+      <Routes>
+        <Route
+          path="/users"
+          element={<UsersView handleLogout={handleLogout} blogs={blogs} />}
         />
-      </Togglable>
-      {result.isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        blogs.map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            handleLike={() => handleLike(blog.id)}
-            handleDelete={() => handleDelete(blog.id)}
-            currentUser={user}
-          />
-        ))
-      )}
-    </div>
+        <Route
+          path="/"
+          element={
+            <div>
+              <Notification />
+              <h2>blogs</h2>
+              <p>{user.username} logged in </p>
+              <button onClick={() => handleLogout()}>logout</button>
+              <Togglable buttonLabel="new blog">
+                <BlogForm
+                  handleNewBlog={handleNewBlog}
+                  title={title}
+                  author={author}
+                  url={url}
+                  handleAuthorChange={({ target }) => setAuthor(target.value)}
+                  handleTitleChange={({ target }) => setTitle(target.value)}
+                  handleUrlChange={({ target }) => setUrl(target.value)}
+                />
+              </Togglable>
+              {result.isLoading ? (
+                <div>Loading...</div>
+              ) : (
+                blogs.map((blog) => (
+                  <Blog
+                    key={blog.id}
+                    blog={blog}
+                    handleLike={() => handleLike(blog.id)}
+                    handleDelete={() => handleDelete(blog.id)}
+                    currentUser={user}
+                  />
+                ))
+              )}
+            </div>
+          }
+        />
+      </Routes>
+    </Router>
   );
 };
 
