@@ -255,6 +255,20 @@ const App = () => {
     }
   };
 
+  const padding = {
+    padding: 5,
+  };
+  const navStyle = {
+    paddingLeft: 2,
+    borderWidth: 1,
+    marginBottom: 1,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "lightgrey",
+    height: 30,
+  };
+
   if (user === null) {
     return (
       <div>
@@ -266,6 +280,16 @@ const App = () => {
   }
   return (
     <Router>
+      <div style={navStyle}>
+        <Link style={padding} to="/">
+          blogs
+        </Link>
+        <Link style={padding} to="/users">
+          users
+        </Link>
+        <p>{user.username} logged in </p>
+        <button onClick={() => handleLogout()}>logout</button>
+      </div>
       <Routes>
         <Route
           path="/users"
@@ -290,9 +314,7 @@ const App = () => {
           element={
             <div>
               <Notification />
-              <h2>blogs</h2>
-              <p>{user.username} logged in </p>
-              <button onClick={() => handleLogout()}>logout</button>
+              <h2>blog app</h2>
               <Togglable buttonLabel="new blog">
                 <BlogForm
                   handleNewBlog={handleNewBlog}
