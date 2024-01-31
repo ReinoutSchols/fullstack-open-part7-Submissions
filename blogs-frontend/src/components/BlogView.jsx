@@ -1,13 +1,17 @@
-import UserContext from "../userContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 
-const BlogView = ({ handleLogout, blogs, handleLike }) => {
-  const [user, UserDispatch] = useContext(UserContext);
+const BlogView = ({ blogs, handleLike, handleSubmit }) => {
+  const [comment, setComment] = useState("");
+  console.log("commentstate: ", comment);
   const blogid = useParams().id;
   const Blog = blogs.filter((blog) => blog.id === blogid);
   console.log("blog", Blog);
   console.log("blogid", blogid);
+
+  const handleCommentChange = (event) => {
+    setComment(event.target.value);
+  };
 
   if (Blog.length === 0) {
     return <p>Loading...</p>;
@@ -28,6 +32,26 @@ const BlogView = ({ handleLogout, blogs, handleLike }) => {
       </div>
       <p>{`added by ${Blog[0].user.username}`}</p>
       <h3>Comments</h3>
+      <form
+        style={{ display: "flex" }}
+        onSubmit={(event) => {
+          handleSubmit(event, blogid, comment);
+          setComment("");
+        }}
+      >
+        <div>
+          <input
+            type="text"
+            value={comment}
+            name="comment"
+            onChange={handleCommentChange}
+            id="commment-id"
+          />
+        </div>
+        <button type="submit" id="addingComment">
+          Comment
+        </button>
+      </form>
       <ul>{commentElements}</ul>
     </div>
   );

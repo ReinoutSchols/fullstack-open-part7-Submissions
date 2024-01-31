@@ -25,16 +25,17 @@ const create = async (newObject) => {
   return response.data;
 };
 
-const createComment = async (id, newObject) => {
-  const config = {
-    headers: { Authorization: token },
-  };
-  const response = await axios.post(
-    `${baseUrl}/${id}/comments`,
-    config,
-    newObject,
-  );
-  return response.data;
+const createComment = async ({ id, newObject }) => {
+  console.log("logging newObject in createcomment service:", newObject);
+  console.log("logging id in createcomment service:", id);
+  try {
+    const response = await axios.post(`${baseUrl}/${id}/comments`, newObject);
+    console.log("Comment created successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in creating a comment", error);
+    throw error;
+  }
 };
 
 const update = async ({ id, newObject }) => {
@@ -64,4 +65,4 @@ const remove = async ({ id }) => {
   }
 };
 
-export default { getAll, create, update, setToken, remove };
+export default { getAll, create, update, setToken, remove, createComment };

@@ -27,10 +27,13 @@ const blogSlice = createSlice({
     RemoveBlogs(state, action) {
       return action.payload;
     },
+    addComment(state, action) {
+      return action.payload;
+    },
   },
 });
 
-export const { SetBlogs, AppendBlogs, LikingBlogs, RemoveBlogs } =
+export const { SetBlogs, AppendBlogs, LikingBlogs, RemoveBlogs, addComment } =
   blogSlice.actions;
 
 export const initializeBlogs = () => {

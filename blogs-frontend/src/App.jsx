@@ -55,6 +55,19 @@ const App = () => {
     deleteBlogMutation.mutate({ id });
   };
 
+  // mutation creator to add a comment
+  const CommentBlogMutation = useMutation({
+    mutationFn: blogService.createComment,
+    onSuccess: () => {
+      console.log("invalidated after commenting");
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+    },
+  });
+
+  const addCommentBlog = (id, newObject) => {
+    CommentBlogMutation.mutate({ id, newObject });
+  };
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [title, setTitle] = useState("");
@@ -255,6 +268,14 @@ const App = () => {
     }
   };
 
+  // function to deal with commenting to pass down to BlogView
+  const handleNewComment = async (event, id, comment) => {
+    event.preventDefault();
+    const blogToUpdate = blogs.find((blog) => blog.id === id);
+    console.log("id in handlenewcomment:", id);
+    addCommentBlog(blogToUpdate.id, { text: comment });
+  };
+
   const padding = {
     padding: 5,
   };
@@ -303,7 +324,7 @@ const App = () => {
           path="/blogs/:id"
           element={
             <BlogView
-              handleLogout={handleLogout}
+              handleSubmit={handleNewComment}
               blogs={blogs}
               handleLike={handleLike}
             />
