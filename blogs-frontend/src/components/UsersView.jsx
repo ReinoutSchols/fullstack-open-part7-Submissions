@@ -1,6 +1,7 @@
 import UserContext from "../userContext";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
+import Table from "react-bootstrap/Table";
 
 const UsersView = ({ handleLogout, blogs }) => {
   const [user, UserDispatch] = useContext(UserContext);
@@ -18,14 +19,11 @@ const UsersView = ({ handleLogout, blogs }) => {
   return (
     <div>
       <h2>blogs</h2>
-      <p>{`${user.username} logged in`}</p>
-      <button onClick={() => handleLogout()}>logout</button>
-      <h2>Users</h2>
       <div>
-        <table>
+        <Table striped bordered hover>
           <thead>
             <tr>
-              <th></th>
+              <th>Users</th>
               <th>Blogs created</th>
             </tr>
           </thead>
@@ -39,7 +37,7 @@ const UsersView = ({ handleLogout, blogs }) => {
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       </div>
     </div>
   );
