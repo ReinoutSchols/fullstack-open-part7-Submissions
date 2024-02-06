@@ -16,8 +16,6 @@ const IndividualUser = ({ handleLogout, blogs }) => {
   return (
     <div>
       <h2>blogs</h2>
-      <p>{`${user.username} logged in`}</p>
-      <button onClick={() => handleLogout()}>logout</button>
       <h1>{userBlogs[0].user.username}</h1>
       <h3>added blogs</h3>
       <ul>

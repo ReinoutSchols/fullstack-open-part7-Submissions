@@ -1,3 +1,5 @@
+import { Button } from "react-bootstrap";
+
 // Blog form
 const BlogForm = ({
   title,
@@ -45,10 +47,10 @@ const BlogForm = ({
             id="url-id"
           />
         </div>
-        <button type="submit" data-testid="create" id="create">
+        <Button type="submit" data-testid="create" id="create">
           {" "}
           Create
-        </button>
+        </Button>
       </form>
     </div>
   );

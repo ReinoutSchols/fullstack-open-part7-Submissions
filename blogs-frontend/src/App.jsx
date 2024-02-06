@@ -14,6 +14,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import UsersView from "./components/UsersView";
 import IndividualUser from "./components/individualUser";
 import BlogView from "./components/BlogView";
+import { Navbar, Nav, Button, Form, Alert } from "react-bootstrap";
 
 const App = () => {
   const queryClient = useQueryClient();
@@ -144,7 +145,7 @@ const App = () => {
 
   // loginform handler
   const loginForm = () => (
-    <form onSubmit={handleLogin}>
+    <Form onSubmit={handleLogin}>
       <div>
         username
         <input
@@ -163,8 +164,8 @@ const App = () => {
           onChange={({ target }) => setPassword(target.value)}
         />
       </div>
-      <button type="submit">login</button>
-    </form>
+      <Button type="submit">login</Button>
+    </Form>
   );
 
   // handle new blog function
@@ -279,15 +280,10 @@ const App = () => {
   const padding = {
     padding: 5,
   };
+
   const navStyle = {
-    paddingLeft: 2,
-    borderWidth: 1,
-    marginBottom: 1,
     display: "flex",
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "lightgrey",
-    height: 30,
   };
 
   if (user === null) {
@@ -301,16 +297,33 @@ const App = () => {
   }
   return (
     <Router>
-      <div style={navStyle}>
-        <Link style={padding} to="/">
-          blogs
-        </Link>
-        <Link style={padding} to="/users">
-          users
-        </Link>
-        <p>{user.username} logged in </p>
-        <button onClick={() => handleLogout()}>logout</button>
-      </div>
+      <Notification />
+      <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Collapse id="responsive-navbar-nav">
+          <Nav className="me-auto">
+            <div style={navStyle}>
+              <Nav.Link href="#" as="span">
+                <Link style={padding} to="/">
+                  blogs
+                </Link>
+              </Nav.Link>
+              <Nav.Link href="#" as="span">
+                <Link style={padding} to="/users">
+                  users
+                </Link>
+              </Nav.Link>
+            </div>
+            <Nav.Link href="#" as="span">
+              <p>{user.username} logged in </p>
+              <Button onClick={() => handleLogout()} variant="primary">
+                logout
+              </Button>
+            </Nav.Link>
+          </Nav>
+        </Navbar.Collapse>
+      </Navbar>
+
       <Routes>
         <Route
           path="/users"

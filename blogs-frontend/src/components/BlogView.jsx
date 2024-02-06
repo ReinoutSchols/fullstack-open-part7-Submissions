@@ -1,5 +1,6 @@
 import { useContext, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Form, Button } from "react-bootstrap";
 
 const BlogView = ({ blogs, handleLike, handleSubmit }) => {
   const [comment, setComment] = useState("");
@@ -28,30 +29,32 @@ const BlogView = ({ blogs, handleLike, handleSubmit }) => {
       <p> {Blog[0].url}</p>
       <div style={{ display: "flex", alignItems: "center" }}>
         <a>{`${Blog[0].likes} likes`}</a>
-        <button onClick={() => handleLike(blogid)}>Like</button>
+        <Button onClick={() => handleLike(blogid)} size="sm">
+          Like
+        </Button>
       </div>
       <p>{`added by ${Blog[0].user.username}`}</p>
       <h3>Comments</h3>
-      <form
+      <Form
         style={{ display: "flex" }}
         onSubmit={(event) => {
           handleSubmit(event, blogid, comment);
           setComment("");
         }}
       >
-        <div>
-          <input
+        <Form.Group>
+          <Form.Control
             type="text"
             value={comment}
             name="comment"
             onChange={handleCommentChange}
             id="commment-id"
           />
-        </div>
-        <button type="submit" id="addingComment">
+        </Form.Group>
+        <Button type="submit" id="addingComment" variant="primary">
           Comment
-        </button>
-      </form>
+        </Button>
+      </Form>
       <ul>{commentElements}</ul>
     </div>
   );

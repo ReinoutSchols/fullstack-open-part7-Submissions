@@ -12,7 +12,9 @@ const Notification = () => {
 
   return (
     <div className={message.includes("Error") ? "error" : "success"}>
-      {message}
+      <div className="alert alert-primary" role="alert">
+        {message}
+      </div>
     </div>
   );
 };
